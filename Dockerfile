@@ -1,26 +1,37 @@
 FROM ubuntu:latest
 
-RUN apt-get update
-RUN apt-get install -y wget
-RUN apt-get install -y openjdk-7-jre
-RUN mkdir -p /var/atlassian/application-data
-RUN groupadd -r bamboo
-RUN useradd -r -m -g bamboo -d /var/atlassian/application-data/bamboo bamboo
-RUN mkdir -p /opt/atlassian/bamboo
-RUN chown -R bamboo:bamboo /opt/atlassian/bamboo
-WORKDIR /opt/atlassian/bamboo
-USER bamboo
-RUN wget -q https://www.atlassian.com/software/bamboo/downloads/binary/atlassian-bamboo-5.8.0.tar.gz \
-  && echo 88e2463a775fe6078c6ccf5142117384beb0be4d73815ce2146e0f05cde771f5 atlassian-bamboo-5.8.0.tar.gz | sha256sum -c - \
-  && tar zxf atlassian-bamboo-5.8.0.tar.gz \
-  && rm atlassian-bamboo-5.8.0.tar.gz
-RUN ln -s atlassian-bamboo-5.8.0 current
-USER root
-COPY bamboo-init.properties current/atlassian-bamboo/WEB-INF/classes/
-RUN chown bamboo:bamboo current/atlassian-bamboo/WEB-INF/classes/bamboo-init.properties
-COPY bamboo /etc/init.d/
-RUN chmod a+x /etc/init.d/bamboo
-EXPOSE 8085
-USER bamboo
-WORKDIR /opt/atlassian/bamboo/current
+ENV ATLASSIAN_HOME=/var/atlassian/application-data \
+    BAMBOO_USER=bamboo \
+    BAMBOO_GROUP=bamboo \
+    BAMBOO_CHECKSUM=88e2463a775fe6078c6ccf5142117384beb0be4d73815ce2146e0f05cde771f5 \
+    BAMBOO_BASENAME=atlassian-bamboo-5.8.0 \
+    BAMBOO_INSTALL_DIR=/opt/atlassian/bamboo
+
+ENV BAMBOO_HOME=${ATLASSIAN_HOME}/bamboo \
+    BAMBOO_TARBALL=${BAMBOO_BASENAME}.tar.gz
+
+ENV BAMBOO_URL=https://www.atlassian.com/software/bamboo/downloads/binary/${BAMBOO_TARBALL}
+
+RUN apt-get update \
+    && apt-get install -y \
+    wget \
+    openjdk-7-jre
+
+RUN mkdir -p ${ATLASSIAN_HOME} \
+    && groupadd -r ${BAMBOO_GROUP} \
+    && useradd -r -m -g ${BAMBOO_GROUP} -d ${BAMBOO_HOME} ${BAMBOO_USER} \
+    && mkdir -p ${BAMBOO_INSTALL_DIR} \
+    && chown -R ${BAMBOO_USER}:${BAMBOO_GROUP} ${BAMBOO_INSTALL_DIR}
+
+USER ${BAMBOO_USER}
+
+WORKDIR ${BAMBOO_INSTALL_DIR}
+RUN wget -q ${BAMBOO_URL} \
+    && echo ${BAMBOO_CHECKSUM} ${BAMBOO_TARBALL} | sha256sum -c - \
+    && tar zxf ${BAMBOO_TARBALL} \
+    && rm ${BAMBOO_TARBALL} \
+    && ln -s ${BAMBOO_BASENAME} current
+
+WORKDIR ${BAMBOO_INSTALL_DIR}/current
+EXPOSE 7990
 CMD bin/start-bamboo.sh -fg

@@ -16,5 +16,4 @@ Map the following volume to persist bamboo data
 
 ```
 /var/atlassian/application-data/bamboo 
-
 ```
