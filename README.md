@@ -9,7 +9,7 @@ docker build --rm --tag=pghalliday/bamboo .
 To run
 
 ```
-docker run -p 127.0.0.1:8085:8085 -t pghalliday/bamboo
+docker run -p 0.0.0.0:8085:8085 -t pghalliday/bamboo
 ```
 
 Map the following volume to persist bamboo data
