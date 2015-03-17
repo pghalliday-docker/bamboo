@@ -33,7 +33,7 @@ RUN wget -q ${BAMBOO_URL} \
     && chown -R ${BAMBOO_USER}:${BAMBOO_GROUP} current/temp \
     && chown -R ${BAMBOO_USER}:${BAMBOO_GROUP} current/work
 
-USER ${BAMBOO_USER}
 WORKDIR ${BAMBOO_INSTALL_DIR}/current/bin
 EXPOSE 7990
-CMD ./start-bamboo.sh -fg
+CMD chown -R ${BAMBOO_USER}:${BAMBOO_GROUP} ${BAMBOO_HOME} \
+    && su ${BAMBOO_USER} -c "./start-bamboo.sh -fg"
