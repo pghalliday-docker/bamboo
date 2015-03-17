@@ -23,15 +23,17 @@ RUN mkdir -p ${ATLASSIAN_HOME} \
     && mkdir -p ${BAMBOO_INSTALL_DIR} \
     && chown -R ${BAMBOO_USER}:${BAMBOO_GROUP} ${BAMBOO_INSTALL_DIR}
 
-USER ${BAMBOO_USER}
-
 WORKDIR ${BAMBOO_INSTALL_DIR}
 RUN wget -q ${BAMBOO_URL} \
     && echo ${BAMBOO_CHECKSUM} ${BAMBOO_TARBALL} | sha256sum -c - \
     && tar zxf ${BAMBOO_TARBALL} \
     && rm ${BAMBOO_TARBALL} \
-    && ln -s ${BAMBOO_BASENAME} current
+    && ln -s ${BAMBOO_BASENAME} current \
+    && chown -R ${BAMBOO_USER}:${BAMBOO_GROUP} current/logs \
+    && chown -R ${BAMBOO_USER}:${BAMBOO_GROUP} current/temp \
+    && chown -R ${BAMBOO_USER}:${BAMBOO_GROUP} current/work
 
+USER ${BAMBOO_USER}
 WORKDIR ${BAMBOO_INSTALL_DIR}/current
 EXPOSE 7990
 CMD bin/start-bamboo.sh -fg
