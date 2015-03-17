@@ -34,6 +34,6 @@ RUN wget -q ${BAMBOO_URL} \
     && chown -R ${BAMBOO_USER}:${BAMBOO_GROUP} current/work
 
 USER ${BAMBOO_USER}
-WORKDIR ${BAMBOO_INSTALL_DIR}/current
+WORKDIR ${BAMBOO_INSTALL_DIR}/current/bin
 EXPOSE 7990
-CMD bin/start-bamboo.sh -fg
+CMD ./start-bamboo.sh -fg
