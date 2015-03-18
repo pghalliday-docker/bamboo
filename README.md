@@ -12,7 +12,7 @@ To run
 docker run -p 0.0.0.0:8085:8085 -i -t pghalliday/bamboo
 ```
 
-Map the following volume to persist bamboo data
+Mounts the following volume for persistent data
 
 ```
 /var/atlassian/application-data/bamboo 
