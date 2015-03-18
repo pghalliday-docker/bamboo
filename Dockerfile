@@ -20,8 +20,7 @@ RUN apt-get update \
 RUN mkdir -p ${ATLASSIAN_HOME} \
     && groupadd -r ${BAMBOO_GROUP} \
     && useradd -r -m -g ${BAMBOO_GROUP} -d ${BAMBOO_HOME} ${BAMBOO_USER} \
-    && mkdir -p ${BAMBOO_INSTALL_DIR} \
-    && chown -R ${BAMBOO_USER}:${BAMBOO_GROUP} ${BAMBOO_INSTALL_DIR}
+    && mkdir -p ${BAMBOO_INSTALL_DIR}
 
 WORKDIR ${BAMBOO_INSTALL_DIR}
 RUN wget -q ${BAMBOO_URL} \
@@ -33,7 +32,10 @@ RUN wget -q ${BAMBOO_URL} \
     && chown -R ${BAMBOO_USER}:${BAMBOO_GROUP} current/temp \
     && chown -R ${BAMBOO_USER}:${BAMBOO_GROUP} current/work
 
+COPY bamboo-server.xml /
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
 WORKDIR ${BAMBOO_INSTALL_DIR}/current/bin
-EXPOSE 7990
-CMD chown -R ${BAMBOO_USER}:${BAMBOO_GROUP} ${BAMBOO_HOME} \
-    && su ${BAMBOO_USER} -c "./start-bamboo.sh -fg"
+EXPOSE 8085
+CMD ./start-bamboo.sh -fg
